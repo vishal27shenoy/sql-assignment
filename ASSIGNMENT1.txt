@@ -1,0 +1,143 @@
+show databases;
+create database pwslearning;
+use  pwslearning;
+create table department(
+Dept_no integer(20),
+Dept_name varchar(20),
+Dept_loc varchar(20),
+primary key(Dept_no)
+);
+create table employee(
+Emp_no integer(20),
+Ename varchar(20),
+salary integer(20),
+Hire_date date,
+commision integer(20),
+Dept_no integer(20),
+mgr integer(20),
+foreign key(Dept_no) references department(Dept_no)
+);
+alter table employee ADD CONSTRAINT PRIMARY KEY (Emp_no);
+insert into department values(10,'Accounts','Bangalore');
+insert into department values(20,'IT','Delhi');
+insert into department values(30,'Production','Chennai');
+insert into department values(40,'Sales','Hyd');
+insert into department values(50,'Admn','London');
+select * from department;
+
+insert into employee values(1001,'Sachin',19000,'1980-01-1',2100,20,1003);
+insert into employee values(1002,'Kapil',15000,'1970-01-1',2300,10,1003);
+insert into employee values(1003,'Stefen',12000,'1990-01-1',500,20,1007);
+insert into employee values(1004,'Williams',9000,'2001-01-1',NULL,30,1007);
+insert into employee values(1005,'John',5000,'2005-01-1',NULL,30,1006);
+insert into employee values(1006,'Dravid',19000,'1985-01-1',2400,10,1007);
+insert into employee values(1007,'Martin',21000,'2000-01-1',1040,NULL,NULL);
+
+select * from department;
+drop table employee;
+
+#1Select employee details  of dept number 10 or 30
+select * from employee where Dept_no = 10 or Dept_no = 30;
+
+#2Write a query to fetch all the dept details with more than 1 Employee.
+select * from department where Dept_no in (select Dept_no from employee group by Dept_no having count(Dept_no) >= 1);
+
+
+#3Write a query to fetch employee details whose name starts with the letter “S”
+select * from employee where Ename like 'S%'; 
+
+#4Select Emp Details Whose experience is more than 2 years
+select * from employee where (TIMESTAMPDIFF(YEAR,Hire_date,CURDATE()))>2;
+select (TIMESTAMPDIFF(YEAR,Hire_date,CURDATE())) from employee;
+
+#5Write a SELECT statement to replace the char “a” with “#” in Employee Name ( Ex:  Sachin as S#chin)
+select replace(Ename, 'a', '#') from employee;
+
+#6Write a query to fetch employee name and his/her manager name. 
+select e.Ename'Employee',m.Ename'Manager' 
+from employee e
+left join employee m 
+on e.mgr=m.Emp_no;
+
+#7Fetch Dept Name , Total Salry of the Dept
+select d.Dept_name,sum(e.salary) from department d left join employee e on d.Dept_no = e.Dept_no group by(d.Dept_no);
+
+#8Write a query to fetch ALL the  employee details along with department name, department location, irrespective of employee existance in the department.
+select * from employee e left join department d on e.Dept_no = d.Dept_no;
+ 
+ 
+ #9Write an update statement to increase the employee salary by 10 %
+update employee set salary = salary + (salary * 10/100); 
+select * from employee;
+
+#10Write a statement to delete employees belong to Chennai location.
+delete from employee where dept_no in (select dept_no from department where dept_loc like 'chennai');
+
+#11Get Employee Name and gross salary (sal + comission) .
+select Ename,salary+coalesce(commision,0) from employee group by Ename;
+
+#12 Increase the data length of the column Ename of Emp table from  100 to 250 using ALTER statement
+alter table employee modify ename varchar(250);
+
+#13 Write query to get current datetime
+ SELECT DATE_FORMAT(CURDATE(),'%M %e, %Y')AS 'Current_date';
+ 
+#15Write a query to fetch number of employees in who is getting salary more than 10000
+select ename ,salary from employee where salary > 10000;
+
+
+
+#16 Write a query to fetch minimum salary, maximum salary and average salary from emp table.
+select min(salary) 'min' ,max(salary) 'max' ,avg(salary)'avg' from employee;
+
+
+#17Write a query to fetch number of employees in each location
+select count(d.dept_loc),d.dept_loc from department d 
+left join employee e on d.dept_no = e.dept_no
+group by d.dept_loc; 
+
+#18 Write a query to display emplyee names in descending order
+ select ename from employee order by ename desc;
+ 
+ #19Write a statement to create a new table(EMP_BKP) from the existing EMP table 
+create table emp_bkp select ename,salary,commision,emp_no from employee;
+select * from emp_bkp;
+
+  #20Write a query to fetch first 3 characters from employee name appended with salary.
+  SELECT CONCAT(LEFT(Ename,3), CAST(Salary as CHAR)) from employee;
+  
+  #21) Get the details of the employees whose name starts with S
+  select * from employee where ename like 'S%';
+  
+  #22Get the details of the employees who works in Bangalore location
+select * from employee where dept_no in (select dept_no from department where dept_loc like 'Bangalore');
+
+  #23) Write the query to get the employee details whose name started within  any letter between  A and K
+  select * from employee where ename between 'A' and 'K';
+
+#24) Write a query in SQL to display the employees whose manager name is Stefen 
+select * from employee where mgr in (select emp_no from employee where ename like 'stefen');
+
+#25) Write a query in SQL to list the name of the managers who is having maximum number of employees working under him
+SELECT * from employee e  left JOIN department d ON  e.Dept_no=d.Dept_no WHERE e.Emp_No IN (SELECT distinct(e1.Mgr) from employee e1);
+
+#26Write a query to display the employee details, department details and the manager details of the employee who has second highest salary
+SELECT * FROM EMPLOYEE WHERE EMP_NO IN (
+SELECT EMP_NO FROM EMPLOYEE WHERE SALARY = (SELECT SALARY FROM EMPLOYEE ORDER BY SALARY DESC LIMIT 2,1));
+
+ #27Write a query to list all details of all the managers
+select e.Ename'Mgr-Name',e.mgr'Mgr-No',e.salary,e.Hire_date,e.Dept_no from employee e 
+ join employee e1 on e.EMP_NO = e1.MGR
+GROUP BY E.ENAME;
+
+#28Write a query to list the details and total experience of all the managers
+select Ename,sum(year(CURDATE())-year(hire_date)) from employee where emp_no in (select mgr from employee) group by(ename);
+
+# 29Write a query to list the employees who is manager and  takes commission less than 1000 and works in Delhi
+select e.Ename from employee e join employee e1 on e.dept_no = e1.mgr where e.dept_no in ( select dept_no from department where dept_loc like 'delhi');
+
+
+#30) Write a query to display the details of employees who are senior to Martin 
+select Ename from employee where year(hire_date)< (select year(hire_date) from employee where ename like "martin");
+
+
