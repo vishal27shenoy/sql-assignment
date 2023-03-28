@@ -140,4 +140,4 @@ select e.Ename from employee e join employee e1 on e.dept_no = e1.mgr where e.de
 #30) Write a query to display the details of employees who are senior to Martin 
 select Ename from employee where year(hire_date)< (select year(hire_date) from employee where ename like "martin");
 
-
+yuy
