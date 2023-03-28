@@ -1,0 +1,78 @@
+#1Fetch all the Customer Details along with the product names that the customer has ordered.
+SELECT C.CUSTOMER_NAME,P.PRODUCT_NAME FROM CUSTOMER C
+JOIN PRODUCT P
+JOIN ORDERS O ON C.CUSTOMER_ID = O.CUSTOMER_ID
+JOIN ORDER_DETAILS OD ON O.ORDER_ID = OD.ORDER_ID AND P.PRODUCT_ID = OD.PRODUCT_ID;
+
+
+#2Fetch Order_Id, Ordered_Date, Total Price of the order (product price*qty).
+SELECT O.ORDER_ID ,O.ORDERED_DATE ,SUM(P.PRODUCT_PRICE*OD.QUANTITY) FROM ORDERS O
+JOIN PRODUCT P
+JOIN ORDER_DETAILS OD ON O.ORDER_ID = OD.ORDER_ID AND P.PRODUCT_ID = OD.PRODUCT_ID
+GROUP BY O.ORDER_ID;
+
+
+#3Fetch the Customer Name, who has not placed any order
+SELECT C.CUSTOMER_NAME FROM CUSTOMER C WHERE C.CUSTOMER_ID NOT IN(
+    SELECT CUSTOMER_ID FROM ORDERS
+);
+
+#4 Fetch the Product Details without any order(purchase)
+SELECT * FROM PRODUCT P WHERE P.PRODUCT_ID NOT IN(
+    SELECT PRODUCT_ID FROM ORDER_DETAILS
+);
+
+#5 Fetch the Customer name along with the total Purchase Amount
+SELECT C.CUSTOMER_NAME ,SUM(P.PRODUCT_PRICE*OD.QUANTITY)FROM CUSTOMER C 
+JOIN PRODUCT P
+JOIN ORDERS O ON C.CUSTOMER_ID = O.CUSTOMER_ID
+JOIN ORDER_DETAILS OD ON O.ORDER_ID = OD.ORDER_ID AND P.PRODUCT_ID = OD.PRODUCT_ID
+GROUP BY C.CUSTOMER_NAME;
+
+
+
+#6Fetch the Customer details, who has placed the first and last order
+SELECT C.CUSTOMER_NAME ,C.CUSTOMER_ID ,'fIRST ORDER' AS 'ORDER'
+FROM CUSTOMER C
+JOIN ORDERS O ON C.CUSTOMER_ID = O.CUSTOMER_ID AND O.ORDERED_DATE =(SELECT MIN(ORDERED_DATE) FROM ORDERS)
+UNION 
+SELECT C.CUSTOMER_NAME ,C.CUSTOMER_ID ,'LAST ORDER' AS 'ORDER'
+FROM CUSTOMER C
+JOIN ORDERS O ON C.CUSTOMER_ID = O.CUSTOMER_ID AND O.ORDERED_DATE =(SELECT MAX(ORDERED_DATE) FROM ORDERS);
+
+
+#7Fetch the customer details , who has placed more number of orders
+SELECT C.Customer_Id, C.Customer_Name, COUNT(O.Order_ID) AS Num_Orders
+FROM Customer C
+JOIN Orders O 
+ON C.Customer_Id = O.Customer_Id
+GROUP BY C.Customer_Id, C.Customer_Name
+ORDER BY Num_Orders DESC
+LIMIT 1;
+
+#8 Fetch the customer details, who has placed multiple orders in the same year
+SELECT C.Customer_Id, C.Customer_Name, YEAR(O.Ordered_Date) AS Order_Year, COUNT(O.Order_ID) AS 'Number of Orders'
+FROM Customer C
+JOIN Orders O ON C.Customer_Id = O.Customer_Id
+GROUP BY C.Customer_Id, C.Customer_Name, YEAR(O.Ordered_Date)
+HAVING COUNT(O.Order_ID) > 1;
+
+
+#9 Fetch the name of the month, in which more number of orders has been placed
+SELECT DATE_FORMAT(O1.ORDERED_DATE,'%M') ,COUNT(DATE_FORMAT(O1.ORDERED_DATE,'%M')) FROM ORDERSS O1,ORDERS O2
+WHERE DATE_FORMAT(O1.ORDERED_DATE,'%M') = DATE_FORMAT(O2.ORDERED_DATE,'%M')
+GROUP BY O1.ORDERED_DATE
+ORDER BY COUNT(DATE_FORMAT(O1.ORDERED_DATE,'%M')) DESC LIMIT 1;
+
+
+#10 Fetch the maximum priced Ordered Product
+SELECT * FROM PRODUCT WHERE PRODUCT_PRICE = (
+    SELECT MAX(PRODUCT_PRICE) FROM PRODUCT WHERE PRODUCT_ID IN (
+        SELECT PRODUCT_ID FROM ORDER_DETAILS));
+
+
+
+
+
+
+
