@@ -51,11 +51,11 @@ ORDER BY Num_Orders DESC
 LIMIT 1;
 
 #8 Fetch the customer details, who has placed multiple orders in the same year
-SELECT C.Customer_Id, C.Customer_Name, YEAR(O.Ordered_Date) AS Order_Year, COUNT(O.Order_ID) AS 'Number of Orders'
-FROM Customer C
-JOIN Orders O ON C.Customer_Id = O.Customer_Id
-GROUP BY C.Customer_Id, C.Customer_Name, YEAR(O.Ordered_Date)
-HAVING COUNT(O.Order_ID) > 1;
+SELECT * FROM CUSTOMER WHERE CUSTOMER_ID IN (
+SELECT O1.CUSTOMER_ID FROM ORDERS O1,ORDERS O2
+WHERE O1.ORDER_ID <> O2.ORDER_ID AND YEAR(O1.ORDERED_DATE) = YEAR(O2.ORDERED_DATE) AND O1.CUSTOMER_ID = O2.CUSTOMER_ID
+GROUP BY O1.CUSTOMER_ID);
+
 
 
 #9 Fetch the name of the month, in which more number of orders has been placed
