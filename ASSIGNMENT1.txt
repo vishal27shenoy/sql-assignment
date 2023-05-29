@@ -85,7 +85,14 @@ alter table employee modify ename varchar(250);
 #15Write a query to fetch number of employees in who is getting salary more than 10000
 select ename ,salary from employee where salary > 10000;
 
-
+#14Write a statement to create STUDENT table, with related 5 columns
+create table student(
+    usn varchar(10) primary key,
+    name varchar(40),
+    semester int,
+    cgpa int,
+    branch varchar(30)
+);
 
 #16 Write a query to fetch minimum salary, maximum salary and average salary from emp table.
 select min(salary) 'min' ,max(salary) 'max' ,avg(salary)'avg' from employee;
